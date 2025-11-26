@@ -29,11 +29,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
-    'https://arun1711-8000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai',
+    (
+        'https://arun1711-8000.theiadockernext-0-'
+        'labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai'
+    ),
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://arun1711-8000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai',
+    (
+        'https://arun1711-8000.theiadockernext-0-'
+        'labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai'
+    ),
 ]
 
 REST_FRAMEWORK = {

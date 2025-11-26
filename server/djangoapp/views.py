@@ -30,8 +30,8 @@ def login_user(request):
 
 def logout_request(request):
     """Handle sign-out requests."""
-    logout(request)  # Terminate user session
-    data = {"userName": ""}  # Return empty username
+    logout(request)
+    data = {"userName": ""}
     return JsonResponse(data)
 
 
@@ -50,7 +50,6 @@ def registration(request):
         User.objects.get(username=username)
         username_exist = True
     except Exception as err:
-        # If not found, it's a new user — log for debugging
         logger.debug("%s is new user: %s", username, err)
 
     if not username_exist:
@@ -83,10 +82,9 @@ def get_cars(request):
 
 def get_dealerships(request, state="All"):
     """Return list of dealerships (optionally filtered by state)."""
-    if state == "All":
-        endpoint = "/fetchDealers"
-    else:
-        endpoint = f"/fetchDealers/{state}"
+    endpoint = "/fetchDealers" if state == "All" else \
+        f"/fetchDealers/{state}"
+
     dealerships = get_request(endpoint)
     return JsonResponse({"status": 200, "dealers": dealerships})
 
@@ -96,12 +94,19 @@ def get_dealer_reviews(request, dealer_id):
     if dealer_id:
         endpoint = f"/fetchReviews/dealer/{dealer_id}"
         reviews = get_request(endpoint) or []
+
         for review_detail in reviews:
-            response = analyze_review_sentiments(review_detail['review'])
-            # response might be None or missing 'sentiment'
-            sentiment = response.get('sentiment') if isinstance(response, dict) else None
+            response = analyze_review_sentiments(
+                review_detail['review']
+            )
+            sentiment = (
+                response.get('sentiment')
+                if isinstance(response, dict) else None
+            )
             review_detail['sentiment'] = sentiment
+
         return JsonResponse({"status": 200, "reviews": reviews})
+
     return JsonResponse({"status": 400, "message": "Bad Request"})
 
 
@@ -111,6 +116,7 @@ def get_dealer_details(request, dealer_id):
         endpoint = f"/fetchDealer/{dealer_id}"
         dealership = get_request(endpoint)
         return JsonResponse({"status": 200, "dealer": dealership})
+
     return JsonResponse({"status": 400, "message": "Bad Request"})
 
 
@@ -118,10 +124,14 @@ def add_review(request):
     """Submit a review (authenticated users only)."""
     if not request.user.is_anonymous:
         data = json.loads(request.body)
+
         try:
             post_review(data)
             return JsonResponse({"status": 200})
         except Exception as err:
             logger.error("Error posting review: %s", err)
-            return JsonResponse({"status": 401, "message": "Error in posting review"})
+            return JsonResponse(
+                {"status": 401, "message": "Error in posting review"}
+            )
+
     return JsonResponse({"status": 403, "message": "Unauthorized"})
