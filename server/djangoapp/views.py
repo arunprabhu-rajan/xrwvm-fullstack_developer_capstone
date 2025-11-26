@@ -24,7 +24,10 @@ def login_user(request):
     response_data = {"userName": username}
     if user is not None:
         login(request, user)
-        response_data = {"userName": username, "status": "Authenticated"}
+        response_data = {
+            "userName": username,
+            "status": "Authenticated"
+        }
     return JsonResponse(response_data)
 
 
