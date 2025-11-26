@@ -82,8 +82,10 @@ def get_cars(request):
 
 def get_dealerships(request, state="All"):
     """Return list of dealerships (optionally filtered by state)."""
-    endpoint = "/fetchDealers" if state == "All" else \
-        f"/fetchDealers/{state}"
+    if state == "All":
+        endpoint = "/fetchDealers"
+    else:
+        endpoint = f"/fetchDealers/{state}"
 
     dealerships = get_request(endpoint)
     return JsonResponse({"status": 200, "dealers": dealerships})
@@ -96,13 +98,11 @@ def get_dealer_reviews(request, dealer_id):
         reviews = get_request(endpoint) or []
 
         for review_detail in reviews:
-            response = analyze_review_sentiments(
-                review_detail['review']
-            )
-            sentiment = (
-                response.get('sentiment')
-                if isinstance(response, dict) else None
-            )
+            review_text = review_detail['review']
+            response = analyze_review_sentiments(review_text)
+            sentiment = None
+            if isinstance(response, dict):
+                sentiment = response.get('sentiment')
             review_detail['sentiment'] = sentiment
 
         return JsonResponse({"status": 200, "reviews": reviews})
@@ -129,9 +129,12 @@ def add_review(request):
             post_review(data)
             return JsonResponse({"status": 200})
         except Exception as err:
-            logger.error("Error posting review: %s", err)
-            return JsonResponse(
-                {"status": 401, "message": "Error in posting review"}
+            logger.error(
+                "Error posting review: %s", err
             )
+            return JsonResponse({
+                "status": 401,
+                "message": "Error in posting review"
+            })
 
     return JsonResponse({"status": 403, "message": "Unauthorized"})
