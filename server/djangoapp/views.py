@@ -9,7 +9,6 @@ from .populate import initiate
 from .models import CarMake, CarModel
 from .restapis import get_request, analyze_review_sentiments, post_review
 
-# Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 
@@ -64,9 +63,15 @@ def registration(request):
             email=email,
         )
         login(request, user)
-        return JsonResponse({"userName": username, "status": "Authenticated"})
+        return JsonResponse({
+            "userName": username,
+            "status": "Authenticated"
+        })
     else:
-        return JsonResponse({"userName": username, "error": "Already Registered"})
+        return JsonResponse({
+            "userName": username,
+            "error": "Already Registered"
+        })
 
 
 def get_cars(request):
@@ -85,11 +90,7 @@ def get_cars(request):
 
 def get_dealerships(request, state="All"):
     """Return list of dealerships (optionally filtered by state)."""
-    if state == "All":
-        endpoint = "/fetchDealers"
-    else:
-        endpoint = f"/fetchDealers/{state}"
-
+    endpoint = "/fetchDealers" if state == "All" else f"/fetchDealers/{state}"
     dealerships = get_request(endpoint)
     return JsonResponse({"status": 200, "dealers": dealerships})
 
